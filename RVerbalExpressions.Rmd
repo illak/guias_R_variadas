@@ -4,26 +4,74 @@ author: "Taumaturgo de Datos"
 date: "7/6/2022"
 output: 
   html_document:
+      theme: paper
+      highlight: tango 
       toc: true
       toc_float: true
+      df_print: paged
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, include=FALSE}
 library(tidyverse)
 ```
 
 ## Introducción
 
-En esta ocasión vamos a hablar de la librería [`RVerbalExpressions`](https://github.com/VerbalExpressions/RVerbalExpressions). Esta tiene por objetivo facilitar la construcción de expresiones regulares. Se recomienda su uso con `%>%` para construir expresiones de forma encadenada.
+En esta ocasión vamos a hablar de la librería [`RVerbalExpressions`](https://github.com/VerbalExpressions/RVerbalExpressions). Esta tiene por objetivo facilitar la construcción de expresiones regulares. Se recomienda su uso con `%>%` para construir expresiones de forma "encadenada" (formato *tidy*).
 
 Para la instalación del paquete:
 
-```{r instalación}
+```{r instalación, eval=FALSE}
 install.packages("RVerbalExpressions")
+```
+
+Para la práctica vamos a hacer uso de datos obtenidos de Twitter con la librería [rtweet](https://github.com/ropensci/rtweet). El dataset contiene 10K registros con el tema: *vacuna*.
+
+```{r}
+datos_tweet <- readRDS("Datos/vacuna_tweets.RDS")
+```
+
+## Exploración de datos
+
+A continuación hagamos una exploración del dataset.
+
+Veamos los nombres de las columas:
+
+```{r}
+names(datos_tweet)
+```
+
+Como podemos ver, nuestro dataset tiene una cantidad enorme de variables, todos metadatos del tweet. Para nuestro ejemplo haremos uso de algunas columnas, a saber:
+
+-   `text`: es el mensaje/tweet en cuestión. Es la variable más importante que vamos a trabajar usando la librería.
+
+-   `screen_name`: es el usuario que escribió el tweet.
+
+-   `followers_count`: es la cantidad de seguidores que tiene el usuario que escribió el tweet.
+
+-   `retweet_count`: es la cantidad de *retweets* que tuvo el tweet.
+
+```{r}
+# seleccionamos las columnas con las que vamos a trabajar
+datos_tweet <- datos_tweet %>% 
+  select(screen_name, followers_count, retweet_count, text)
+```
+
+Veamos las primeras 5 filas del dataset:
+
+```{r}
+head(datos_tweet, 5)
+```
+
+Veamos únicamente los textos:
+
+```{r}
+# vemos los primeros 5 text
+head(datos_tweet %>% select(text), 5)
 ```
 
 ## Caso de uso puntual
