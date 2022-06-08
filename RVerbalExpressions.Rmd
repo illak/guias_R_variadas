@@ -1,0 +1,29 @@
+---
+title: "REGEX - RVerbalExpressions"
+author: "Taumaturgo de Datos"
+date: "7/6/2022"
+output: 
+  html_document:
+      toc: true
+      toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+## Introducción
+
+En esta ocasión vamos a hablar de la librería [`RVerbalExpressions`](https://github.com/VerbalExpressions/RVerbalExpressions). Esta tiene por objetivo facilitar la construcción de expresiones regulares. Se recomienda su uso con `%>%` para construir expresiones de forma encadenada.
+
+Para la instalación del paquete:
+
+```{r instalación}
+install.packages("RVerbalExpressions")
+```
+
+## Caso de uso puntual
