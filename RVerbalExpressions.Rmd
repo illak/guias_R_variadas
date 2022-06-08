@@ -74,4 +74,25 @@ Veamos únicamente los textos:
 head(datos_tweet %>% select(text), 5)
 ```
 
+A continuación veamos ejemplos de uso de la librería para generar **expresiones regulares** de forma rápida y así remover expresiones que puedan dificultar el análisis de texto.
+
 ## Caso de uso puntual
+
+Como se sabe, el uso de emojis en twitter es muy frecuente, estas "palabras" deben ser suprimidas para un análisis de texto correcto (a no ser que nuestro análisis sea sobre el uso de emojis, en tal caso nos interesa quedarnos con estas "palabras" y no borrarlas). Veamos cómo podemos hacer uso de la función `str_replace` para lograr esto.
+
+Primero investiguemos la función a fondo, para lo cual, vamos a trabajar sobre el primer tweet
+
+```{r}
+datos_tweet$text[1]
+```
+
+Podemos ver que el tweet tiene 4 emojis. Vamos a probar la función para reemplazar estas ocurrencias con un texto "vacío".
+
+```{r}
+str_replace(# el texto
+            datos_tweet$text[1],
+            # el patrón que vamos a detectar
+            pattern =  "[^[:alnum:][:blank:]]",
+            # el texto por el que vamos a reemplazar el patrón
+            replacement = "")
+```
