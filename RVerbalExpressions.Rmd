@@ -78,7 +78,9 @@ A continuación veamos ejemplos de uso de la librería para generar **expresione
 
 ## Caso de uso puntual
 
-Como se sabe, el uso de emojis en twitter es muy frecuente, estas "palabras" deben ser suprimidas para un análisis de texto correcto (a no ser que nuestro análisis sea sobre el uso de emojis, en tal caso nos interesa quedarnos con estas "palabras" y no borrarlas). Veamos cómo podemos hacer uso de la función `str_replace` para lograr esto.
+Antes de avanzar con el uso de la librería, vamos a hacer un par de ejemplos con la librería `stringr`.
+
+Como se sabe, el uso de emojis en twitter es muy frecuente, estas "palabras" deben ser suprimidas para un análisis de texto correcto (a no ser que nuestro análisis sea sobre el uso de emojis, en tal caso nos interesa quedarnos con estas "palabras" y no borrarlas). Veamos cómo podemos hacer uso de la función `str_replace` para lograr esto. Esta función es de la librería `stringr`, la cual forma parte del **tidyverse**.
 
 Primero investiguemos la función a fondo, para lo cual, vamos a trabajar sobre el primer tweet
 
@@ -96,3 +98,15 @@ str_replace(# el texto
             # el texto por el que vamos a reemplazar el patrón
             replacement = "")
 ```
+
+¿Qué pasó? ¿Por qué aún veo los emojis?
+
+Lo que sucede es que la función `str_replace` detectó el patrón que especificamos:
+
+> `[^[:alnum:][:blank:]]`
+
+Este patrón se traduce a
+
+> *"todo aquello que **no** comienza por un caracter **alfanumérico** o por un **espacio en blanco**".*
+
+pero la primer ocurrencia, la cual corresponde al simbolo \# de la palabra \#AztraZeneca
