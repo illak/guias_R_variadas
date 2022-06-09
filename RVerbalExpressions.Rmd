@@ -21,7 +21,7 @@ library(tidyverse)
 
 ## Introducción
 
-En esta ocasión vamos a hablar de la librería [`RVerbalExpressions`](https://github.com/VerbalExpressions/RVerbalExpressions). Esta tiene por objetivo facilitar la construcción de expresiones regulares. Se recomienda su uso con `%>%` para construir expresiones de forma "encadenada" (formato *tidy*).
+En esta ocasión vamos a hablar de la librería [RVerbalExpressions](https://github.com/VerbalExpressions/RVerbalExpressions){target="\_blank"}. Esta tiene por objetivo facilitar la construcción de expresiones regulares. Se recomienda su uso con `%>%` para construir expresiones de forma "encadenada" (formato *tidy*).
 
 Para la instalación del paquete:
 
@@ -29,7 +29,9 @@ Para la instalación del paquete:
 install.packages("RVerbalExpressions")
 ```
 
-Para la práctica vamos a hacer uso de datos obtenidos de Twitter con la librería [rtweet](https://github.com/ropensci/rtweet). El dataset contiene 10K registros con el tema: *vacuna*.
+Para la práctica vamos a hacer uso de datos obtenidos de Twitter con la librería [rtweet](<https://github.com/ropensci/rtweet>){target="\_blank"}
+
+. El dataset contiene 10K registros con el tema: *vacuna*.
 
 ```{r}
 datos_tweet <- readRDS("Datos/vacuna_tweets.RDS")
@@ -130,7 +132,7 @@ str_replace_all(# el texto
             replacement = "")
 ```
 
-Para probar expresiones regulares podemos hacer uso de herramientas online como <https://regex101.com/>.
+Para probar expresiones regulares podemos hacer uso de herramientas online como [https://regex101.com/](<https://regex101.com/>){target="\_blank"}.
 
 ![](C:/Users/Usuario/Desktop/captures_chrome-capture-2022-5-8.png)
 
