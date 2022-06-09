@@ -105,8 +105,108 @@ Lo que sucede es que la función `str_replace` detectó el patrón que especific
 
 > `[^[:alnum:][:blank:]]`
 
-Este patrón se traduce a
+el cual se traduce a
 
-> *"todo aquello que **no** comienza por un caracter **alfanumérico** o por un **espacio en blanco**".*
+> *"todo aquello que **no** es un caracter **alfanumérico** o un **espacio en blanco**".*
 
-pero la primer ocurrencia, la cual corresponde al simbolo \# de la palabra \#AztraZeneca
+pero la función reemplazó la **primer ocurrencia**, la cual corresponde al símbolo *"\#"* de la palabra *"\#AztraZeneca"*. En la libreria `stringr` la mayoría de las funciones tienen 2 versiones:
+
+-   la versión que detecta la **primer** ocurrencia del patrón.
+
+-   la versión que detecta **todas** las ocurrencias del patrón.
+
+para el caso de la función `str_replace` la versión que detecta todas las ocurrencias es `str_replace_all`. Los nombres de las funciones de la librería siguen el patrón:
+
+-   para la versión 1 (único patrón): `str_<VERBO>`.
+
+-   para la versión 2 (múltiples patrones): `str_<VERBO>_all` (notar el `all` al final del nombre).
+
+```{r}
+str_replace_all(# el texto
+            datos_tweet$text[1],
+            # el patrón que vamos a detectar
+            pattern =  "[^[:alnum:][:blank:]]",
+            # el texto por el que vamos a reemplazar el patrón
+            replacement = "")
+```
+
+Para probar expresiones regulares podemos hacer uso de herramientas online como <https://regex101.com/>.
+
+![](C:/Users/Usuario/Desktop/captures_chrome-capture-2022-5-8.png)
+
+A continuación veamos cómo podemos usar la librería `RVerbalExpressions` para construir expresiones regulares que pueden resultar más complejas.
+
+## La máquina de crear expresiones regulares
+
+Primero importamos la librería:
+
+```{r}
+library(RVerbalExpressions)
+```
+
+Para la construcción de expresiones regulares por lo general comenzamos utilizando la función `rx` de la librería y vamos concatenando los "verbos" que nos provee. Podemos pensarlo como crear o escribir una receta de cómo construir una expresión regular.
+
+Supongamos que queremos quitar las URLs de nuestros textos porque no nos interesan para nuestro análisis.
+
+Veamos entonces el caso específico en la construcción de la expresión que detecta:
+
+> *"todo aquello que tiene forma de URL".*
+
+pero... ¿qué significa "que tenga forma" de URL?
+
+Veamos algunos ejemplos de URL:
+
+-   `https://ejemplo.com`
+
+-   `http://ejemplo.com`
+
+-   `http://www.ejemplo.com`
+
+Identifiquemos las diferencias que pueden existir entre cada opción
+
+-   a veces tenemos *http*, otras veces *https*
+
+-   a veces luego de '://' sigue 'www.', a veces no
+
+Construyamos la "receta" para detectar todos estos posibles casos explicando cada paso:
+
+```{r}
+patron_URL <- rx() %>%
+  # encontrar la ocurrencia de 'http'
+  rx_find('http') %>% 
+  # a continuación, opcionalmente podemos encontrar una 's'
+  rx_maybe('s') %>% 
+  # seguido de '://'
+  rx_find('://') %>% 
+  # a continuación, opcionalmente podemos encontrar 'www.'
+  rx_maybe('www.') %>% 
+  # a continuación tenemos una seguidilla de 'cosas' distintas al espacio en blanco
+  # 'ejemplo.com'
+  rx_anything_but(' ')
+  
+  
+patron_URL
+```
+
+Probemos si nuestro patrón detecta URLs en nuestros ejemplos, para lo cual vamos a seleccionar únicamente textos (tweets) que contengan enlaces:
+
+```{r}
+textos_con_URL <- datos_tweet %>% 
+  # filtramos registros cuyos textos contengan el string 'http'
+  filter(str_detect(text, 'http'))
+
+# vemos los primeros 5  
+head(textos_con_URL %>% select(text), 5)
+```
+
+Procedemos con la eliminación de URLs:
+
+```{r}
+textos_sin_URL <- textos_con_URL %>% 
+  mutate(text = str_remove_all(text, pattern = patron_URL))
+
+# veamos los primeros 5
+head(textos_sin_URL %>% select(text), 5)
+```
+
+Logramos quitar URLs de nuestros textos!

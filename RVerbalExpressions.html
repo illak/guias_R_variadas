@@ -422,7 +422,8 @@ div.tocify {
 </div>
 <div id="caso-de-uso-puntual" class="section level2">
 <h2>Caso de uso puntual</h2>
-<p>Como se sabe, el uso de emojis en twitter es muy frecuente, estas “palabras” deben ser suprimidas para un análisis de texto correcto (a no ser que nuestro análisis sea sobre el uso de emojis, en tal caso nos interesa quedarnos con estas “palabras” y no borrarlas). Veamos cómo podemos hacer uso de la función <code>str_replace</code> para lograr esto.</p>
+<p>Antes de avanzar con el uso de la librería, vamos a hacer un par de ejemplos con la librería <code>stringr</code>.</p>
+<p>Como se sabe, el uso de emojis en twitter es muy frecuente, estas “palabras” deben ser suprimidas para un análisis de texto correcto (a no ser que nuestro análisis sea sobre el uso de emojis, en tal caso nos interesa quedarnos con estas “palabras” y no borrarlas). Veamos cómo podemos hacer uso de la función <code>str_replace</code> para lograr esto. Esta función es de la librería <code>stringr</code>, la cual forma parte del <strong>tidyverse</strong>.</p>
 <p>Primero investiguemos la función a fondo, para lo cual, vamos a trabajar sobre el primer tweet</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>datos_tweet<span class="sc">$</span>text[<span class="dv">1</span>]</span></code></pre></div>
 <pre><code>## [1] &quot;Bueno me alegro que la vacuna de #AstraZeneca siga. En junio la segunda dosis &lt;U+2665&gt;&lt;U+FE0F&gt;&lt;U+2665&gt;&lt;U+FE0F&gt; #yomevacuno #vacunada &lt;U+0001F489&gt;&lt;U+0001F489&gt;&quot;</code></pre>
@@ -434,6 +435,97 @@ div.tocify {
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>            <span class="co"># el texto por el que vamos a reemplazar el patrón</span></span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">replacement =</span> <span class="st">&quot;&quot;</span>)</span></code></pre></div>
 <pre><code>## [1] &quot;Bueno me alegro que la vacuna de AstraZeneca siga. En junio la segunda dosis &lt;U+2665&gt;&lt;U+FE0F&gt;&lt;U+2665&gt;&lt;U+FE0F&gt; #yomevacuno #vacunada &lt;U+0001F489&gt;&lt;U+0001F489&gt;&quot;</code></pre>
+<p>¿Qué pasó? ¿Por qué aún veo los emojis?</p>
+<p>Lo que sucede es que la función <code>str_replace</code> detectó el patrón que especificamos:</p>
+<blockquote>
+<p><code>[^[:alnum:][:blank:]]</code></p>
+</blockquote>
+<p>el cual se traduce a</p>
+<blockquote>
+<p><em>“todo aquello que <strong>no</strong> es un caracter <strong>alfanumérico</strong> o un <strong>espacio en blanco</strong>”.</em></p>
+</blockquote>
+<p>pero la función reemplazó la <strong>primer ocurrencia</strong>, la cual corresponde al símbolo <em>“#”</em> de la palabra <em>“#AztraZeneca”</em>. En la libreria <code>stringr</code> la mayoría de las funciones tienen 2 versiones:</p>
+<ul>
+<li><p>la versión que detecta la <strong>primer</strong> ocurrencia del patrón.</p></li>
+<li><p>la versión que detecta <strong>todas</strong> las ocurrencias del patrón.</p></li>
+</ul>
+<p>para el caso de la función <code>str_replace</code> la versión que detecta todas las ocurrencias es <code>str_replace_all</code>. Los nombres de las funciones de la librería siguen el patrón:</p>
+<ul>
+<li><p>para la versión 1 (único patrón): <code>str_&lt;VERBO&gt;</code>.</p></li>
+<li><p>para la versión 2 (múltiples patrones): <code>str_&lt;VERBO&gt;_all</code> (notar el <code>all</code> al final del nombre).</p></li>
+</ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str_replace_all</span>(<span class="co"># el texto</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>            datos_tweet<span class="sc">$</span>text[<span class="dv">1</span>],</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>            <span class="co"># el patrón que vamos a detectar</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">pattern =</span>  <span class="st">&quot;[^[:alnum:][:blank:]]&quot;</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>            <span class="co"># el texto por el que vamos a reemplazar el patrón</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">replacement =</span> <span class="st">&quot;&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] &quot;Bueno me alegro que la vacuna de AstraZeneca siga En junio la segunda dosis  yomevacuno vacunada &quot;</code></pre>
+<p>A continuación veamos cómo podemos usar la librería <code>RVerbalExpressions</code> para construir expresiones regulares que pueden resultar más díficiles.</p>
+</div>
+<div id="la-máquina-de-crear-expresiones-regulares" class="section level2">
+<h2>La máquina de crear expresiones regulares</h2>
+<p>Primero importamos la librería:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RVerbalExpressions)</span></code></pre></div>
+<pre><code>## Warning: package &#39;RVerbalExpressions&#39; was built under R version 4.1.3</code></pre>
+<p>Para la construcción de expresiones regulares por lo general comenzamos utilizando la función <code>rx</code> de la librería y vamos concatenando los “verbos” que nos provee. Podemos pensarlo como crear una receta de cómo construir una expresión regular.</p>
+<p>Supongamos que ahora queremos quitar las URLs de nuestro texto.</p>
+<p>Veamos entonces el caso específico en la construcción de la expresión que detecta:</p>
+<blockquote>
+<p><em>“todo aquello que tiene forma de URL”.</em></p>
+</blockquote>
+<p>¿qué significa que “tenga forma” de URL?</p>
+<p>Veamos algunos ejemplos de URL:</p>
+<ul>
+<li><p><code>https://ejemplo.com</code></p></li>
+<li><p><code>http://ejemplo.com</code></p></li>
+<li><p><code>http://www.ejemplo.com</code></p></li>
+</ul>
+<p>Identifiquemos las diferencias que pueden existir entre cada opción</p>
+<ul>
+<li><p>a veces tenemos <em>http</em>, otras veces <em>https</em></p></li>
+<li><p>a veces luego de ‘://’ sigue ‘www.’, a veces no</p></li>
+</ul>
+<p>Construyamos la “receta” para detectar todos estos posibles casos explicando cada paso:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>patron_URL <span class="ot">&lt;-</span> <span class="fu">rx</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># encontrar la ocurrencia de &#39;http&#39;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rx_find</span>(<span class="st">&#39;http&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># opcionalmente podemos encontrar una &#39;s&#39;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rx_maybe</span>(<span class="st">&#39;s&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># seguido de &#39;://&#39;</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rx_find</span>(<span class="st">&#39;://&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># opcionalmente podemos encontrar &#39;www.&#39;</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rx_maybe</span>(<span class="st">&#39;www.&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># a continuación tenemos una seguidilla de &#39;cosas&#39; distintas al espacio en blanco</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rx_anything_but</span>(<span class="st">&#39; &#39;</span>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>patron_URL</span></code></pre></div>
+<pre><code>## [1] &quot;(http)(s)?(\\://)(www\\.)?([^ ]*)&quot;</code></pre>
+<p>Probemos si nuestro patrón detecta URLs en nuestros ejemplos, para lo cual vamos a seleccionar únicamente textos (tweets) que contengan enlaces:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>textos_con_URL <span class="ot">&lt;-</span> datos_tweet <span class="sc">%&gt;%</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># filtramos registros cuyos textos contengan el string &#39;http&#39;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(text, <span class="st">&#39;http&#39;</span>))</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co"># vemos los primeros 5  </span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(textos_con_URL <span class="sc">%&gt;%</span> <span class="fu">select</span>(text), <span class="dv">5</span>)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["text"],"name":[1],"type":["chr"],"align":["left"]}],"data":[{"1":"Tenía predisposición a accidentes cerebrovasculares que, misteriosamente, nada que ver con 1 vacuna que los provoca. \\nEn los siguientes dirán que tenían predisposición a morirse por su condición de seres vivos? https://t.co/E7HfeJYWt3"},{"1":"Por mucha propaganda que le hagan al CONICET (valga respeto a sus empleados), no fabricaron la \"vacuna argentina\" ni del \"test argentino para el mundo\" con los que Alverso hizo campaña.\\n\\nSe necesita comercialización internacional para salir adelante en el mundo moderno, no 1950. https://t.co/TNoDjBwafE"},{"1":"Luis Enjuanes: \"Nuestra vacuna neutraliza al virus en la puerta de entrada, las de ahora no lo hacen\" https://t.co/ejkydR8joz vía @NiusDiario"},{"1":"Médicos ven “tranquilizador” que no exista vínculo entre la muerte de la docente de Marbella y la vacuna https://t.co/1wHlsmguY2"},{"1":"Con dos dosis te contagias igual pero lo que hace la vacuna es bajar el riesgo<U+0001F644> https://t.co/pjXWARc160"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Procedemos con la eliminación de URLs:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>textos_sin_URL <span class="ot">&lt;-</span> textos_con_URL <span class="sc">%&gt;%</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">text =</span> <span class="fu">str_remove_all</span>(text, <span class="at">pattern =</span> patron_URL))</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># veamos los primeros 5</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(textos_sin_URL <span class="sc">%&gt;%</span> <span class="fu">select</span>(text), <span class="dv">5</span>)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["text"],"name":[1],"type":["chr"],"align":["left"]}],"data":[{"1":"Tenía predisposición a accidentes cerebrovasculares que, misteriosamente, nada que ver con 1 vacuna que los provoca. \\nEn los siguientes dirán que tenían predisposición a morirse por su condición de seres vivos?"},{"1":"Por mucha propaganda que le hagan al CONICET (valga respeto a sus empleados), no fabricaron la \"vacuna argentina\" ni del \"test argentino para el mundo\" con los que Alverso hizo campaña.\\n\\nSe necesita comercialización internacional para salir adelante en el mundo moderno, no 1950."},{"1":"Luis Enjuanes: \"Nuestra vacuna neutraliza al virus en la puerta de entrada, las de ahora no lo hacen\"  vía @NiusDiario"},{"1":"Médicos ven “tranquilizador” que no exista vínculo entre la muerte de la docente de Marbella y la vacuna"},{"1":"Con dos dosis te contagias igual pero lo que hace la vacuna es bajar el riesgo<U+0001F644>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Logramos quitar URLs de nuestros textos!</p>
 </div>
 
 
